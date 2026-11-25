@@ -1,6 +1,6 @@
 {
-  "name": "数独合集",
-  "short_name": "数独合集",
+  "name": "Sudoku Collection",
+  "short_name": "Sudoku",
   "description": "杀手数独 · 箭头数独 · 三明治数独",
   "lang": "zh-CN",
   "start_url": "./",

@@ -41,7 +41,7 @@ h1{font-size:34px;line-height:41px;font-weight:700;margin:8px 0}
 #hearts{display:flex;gap:6px}
 #hearts svg{width:20px;height:20px;fill:var(--heart);stroke:none}
 #hearts svg.off{opacity:.22}
-#gw{position:relative;background:var(--card);border:1.5px solid var(--box);border-radius:22px;overflow:hidden}
+#gw{position:relative;background:var(--card);border:1.5px solid var(--box);border-radius:0;overflow:hidden}
 #grid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));width:100%;aspect-ratio:1;user-select:none;-webkit-user-select:none}
 #gl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .c{display:flex;align-items:center;justify-content:center;font:calc(var(--g)/9*.56)/1 var(--fn);color:var(--acc);position:relative;cursor:pointer;overflow:hidden;min-width:0}
@@ -102,7 +102,7 @@ textarea{display:block;width:100%;height:84px;font:12px/16px ui-monospace,Menlo,
 body{position:relative;min-height:100vh;overflow-x:hidden}
 .scr{display:none;flex:none;width:100%;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));--w:min(calc(100vw - 2*var(--pad)),460px);padding:0 calc((100% - var(--w))/2) 32px;background:var(--bg)}
 .scr.on{display:block}
-.scr.tr{position:absolute;top:0;left:0;right:0;width:auto}
+.scr.tr{position:absolute;top:0;left:0;right:0;bottom:0;width:auto}
 button{transition:transform .5s var(--spring),background-color .2s,opacity .2s}
 .pill:active,.act button:active,.sw:active{transform:scale(.94);transition-duration:.1s}
 .pad button:active{transform:scale(.9);transition-duration:.1s}
@@ -162,16 +162,15 @@ button{transition:transform .5s var(--spring),background-color .2s,opacity .2s}
 
 #home h1{margin:14px 0 28px;letter-spacing:-.5px}
 .scr.tr{will-change:transform}
-#ld{position:fixed;inset:0;z-index:30;background:var(--bg,#eef3fa);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;pointer-events:none;transition:opacity .3s}
+#ld{position:fixed;inset:0;z-index:30;background:var(--bg,#eef3fa);display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:22vh;opacity:0;pointer-events:none;transition:opacity .3s}
 #ld.on{opacity:1;pointer-events:auto}
-#ld p{margin:0;color:var(--sec,#8e8e93);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-size:15px;letter-spacing:.5px}
-.ldg{display:grid;grid-template-columns:repeat(3,24px);gap:6px}
-.ldg i{width:24px;height:24px;border-radius:8px;background:var(--card,#fff);box-shadow:var(--sh,0 4px 16px rgba(0,0,0,.08));display:flex;align-items:center;justify-content:center;font:600 20px/1 var(--fn,-apple-system,sans-serif);font-style:normal;color:var(--acc,#1776c7);opacity:.4;transform:scale(.8)}
-.ldg i:nth-child(5){--hl:var(--heart)}
-#ld.on .ldg i{animation:ldw 1.5s cubic-bezier(.4,0,.2,1) infinite;animation-delay:calc(var(--i)*.11s)}
-@keyframes ldw{0%,70%,100%{transform:scale(.8);opacity:.4;background:var(--card,#fff);color:var(--acc,#1776c7)}25%,45%{transform:scale(1.04);opacity:1;background:var(--hl,var(--acc,#1776c7));color:var(--onacc,#fff)}}
-@media (prefers-reduced-motion:reduce){#ld.on .ldg i{animation:none;opacity:.9;transform:none}}
-@media (prefers-color-scheme:dark){#ld{background:var(--bg,#070c1c)}.ldg i{background:var(--card,#1c1c1e)}}
+.ldg{display:grid;grid-template-columns:repeat(3,15px);gap:4px}
+.ldg i{position:relative;width:15px;height:15px;border-radius:4px;background:rgba(var(--rgb,23,118,199),.16);transform:scale(.86);animation:ldw .9s cubic-bezier(.4,0,.2,1) infinite;animation-delay:calc(var(--i)*.1s)}
+.ldg i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--hl,var(--acc,#1776c7));opacity:0;animation:ldh .9s cubic-bezier(.4,0,.2,1) infinite;animation-delay:calc(var(--i)*.1s)}
+.ldg i:nth-child(5){--hl:var(--heart,#e859a9)}
+@keyframes ldw{0%{transform:scale(.86)}12%{transform:scale(1.08)}42%,100%{transform:scale(.86)}}
+@keyframes ldh{0%{opacity:0}12%{opacity:1}45%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.ldg i,.ldg i::after{animation:none}.ldg i::after{opacity:.5}}
 
 /* ===== 设置整理 / 高亮 / 虚影 ===== */
 .row .seg{margin:0;height:34px;flex:none}
@@ -427,8 +426,12 @@ function hideM(el){if(!el.classList.contains('on')||el.classList.contains('out')
 function popCell(i){const e=G.children[i];if(e&&S.cur[i]&&e.lastElementChild)e.lastElementChild.classList.add('pp')}
 function dlg(t,p,btns){$('#ot').textContent=t;$('#op').textContent=p;const b=$('#ob');b.innerHTML='';btns.forEach(([l,f,pr])=>{const x=document.createElement('button');x.textContent=l;if(pr)x.className='b';x.onclick=()=>{hideM($('#ov'));f&&f()};b.append(x)});showM($('#ov'))}
 const chev=`<svg class="i s"><use href="#chev"/></svg>`;
-function go(d){if(go.b)return;go.b=1;const t0=Date.now(),ld=$('#ld');ld.classList.add('on');
- genAsync(PF.mode,d).then(W=>{init(W,d);save();setTimeout(()=>{open(0);ld.classList.remove('on');go.b=0},Math.max(0,700-(Date.now()-t0)))})}
+const LD=$('#ld');
+function ldShow(){clearTimeout(ldShow.t);LD.style.display='';void LD.offsetWidth;LD.classList.add('on')}
+function ldHide(min,cb){const T=900,an=LD.querySelector('i').getAnimations()[0],e=an?+an.currentTime||0:0,w=Math.ceil(Math.max(e,min)/T)*T-e;
+ setTimeout(()=>{cb&&cb();LD.classList.remove('on');ldShow.t=setTimeout(()=>{LD.style.display='none'},340)},w)}
+function go(d){if(go.b)return;go.b=1;ldShow();
+ genAsync(PF.mode,d).then(W=>{init(W,d);save();ldHide(900,()=>{open(0);go.b=0})})}
 function home(back){const m=PF.mode,sv=SAVES[m],c=sv&&!sv.over;
  seg($('#mseg'),MK.map(k=>[k,t('m_'+k)]),m,k=>{PF.mode=k;prefs()});
  $('#rule').textContent=t('rule_'+m);
@@ -529,6 +532,6 @@ try{let raw=localStorage.getItem(K);if(!raw)raw=localStorage.getItem(OLDK);if(ra
   else{bx.style.transform='translateY(0)';sh.style.background='';setTimeout(()=>{bx.style.cssText='animation:none';sh.style.cssText=''},560)}};
  bx.addEventListener('touchend',fin);bx.addEventListener('touchcancel',fin)})();
 theme();applyLang();home();
-setTimeout(()=>$('#ld').classList.remove('on'),Math.max(0,800-performance.now()));
+ldHide(900);
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script></body></html>

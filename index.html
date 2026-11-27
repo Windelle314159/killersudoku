@@ -254,7 +254,7 @@ button{transition:transform .5s var(--spring),background-color .2s,opacity .2s}
    <div class="row"><span data-t="p_lv"></span><div class="seg" id="prd" style="grid-template-columns:repeat(3,1fr);width:168px"></div></div>
    <div class="row"><span data-t="p_per"></span><div class="stp"><button id="pn1">−</button><b id="prn"></b><button id="pn2">+</button></div></div>
    <div class="row"><span data-t="p_pages"></span><div class="stp"><button id="pg1">−</button><b id="prp"></b><button id="pg2">+</button></div></div>
-   <div class="row"><span data-t="p_set"></span><div class="seg" id="prs" style="grid-template-columns:repeat(2,1fr);width:190px"></div></div>
+   <div class="row"><span data-t="p_ori"></span><div class="seg" id="pro" style="grid-template-columns:repeat(2,1fr);width:190px"></div></div>
    <div class="row"><span data-t="p_ans"></span><button class="sw" id="pra" role="switch"></button></div>
   </div>
   <div class="foot" id="prsum" style="margin:-16px 0 16px;min-height:18px"></div>
@@ -318,22 +318,22 @@ let BUD=1e9;
 function cnt(g,W,lim){if(--BUD<0)return 9;const[b,bm]=pick(g,W,1);if(b<0)return 1;const M=MD[W.mode];let t=0;for(let d=1;d<10&&t<lim;d++)if(!(bm&bit(d))){g[b]=d;if(M.ok(g,W,b))t+=cnt(g,W,lim-t)}g[b]=0;return t}
 function fill(g){const[b,bm]=pick(g,null,0);if(b<0)return true;for(const d of shuf([1,2,3,4,5,6,7,8,9]))if(!(bm&bit(d))){g[b]=d;if(fill(g))return true}g[b]=0;return false}
 function giveUntilUnique(W,p){const{sol,giv}=W,od=shuf([...Array(81).keys()]);for(let q=0;q<p;q++)giv[od[q]]=sol[od[q]];
- while(cnt(giv.slice(),W,2)!==1){for(let z=0;z<2&&p<81;z++,p++)giv[od[p]]=sol[od[p]]}}
+ while((BUD=150000,cnt(giv.slice(),W,2))!==1){BUD=1e9;for(let z=0;z<2&&p<81;z++,p++)giv[od[p]]=sol[od[p]]}BUD=1e9}
 function minimize(W,cap){const gl=shuf([...Array(81).keys()].filter(i=>W.giv[i]));let n=gl.length;
  for(const i of gl){if(n<=cap)break;const v=W.giv[i];W.giv[i]=0;BUD=6000;const c=cnt(W.giv.slice(),W,2);BUD=1e9;if(c===1)n--;else W.giv[i]=v}}
 function base(){const sol=Array(81).fill(0);fill(sol);return sol}
-function genKiller(df){const sol=base(),cg=Array(81).fill(-1),cages=[],mx=[3,4,4][df];
+function genKiller(df){const sol=base(),cg=Array(81).fill(-1),cages=[],mx=[4,4,5][df];
  for(const s of shuf([...Array(81).keys()])){if(cg[s]>=0)continue;const k=cages.length,cl=[s],ds=new Set([sol[s]]);cg[s]=k;const t=2+(Math.random()*(mx-1)|0);
   while(cl.length<t){const nb=[];for(const j of cl){const r=j/9|0,c=j%9;[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([a,b])=>{if(a>=0&&a<9&&b>=0&&b<9){const x=a*9+b;if(cg[x]<0&&!ds.has(sol[x]))nb.push(x)}})}
    if(!nb.length)break;const x=nb[Math.random()*nb.length|0];cg[x]=k;cl.push(x);ds.add(sol[x])}
   cages.push(cl)}
  const W={mode:'killer',sol,giv:Array(81).fill(0),cg,cages,sums:cages.map(cl=>cl.reduce((a,j)=>a+sol[j],0))};
- giveUntilUnique(W,[26,14,6][df]);return W}
+ giveUntilUnique(W,[14,6,2][df]);if(df==2)minimize(W,0);return W}
 function genSand(df){const sol=base(),sw=v=>{const a=v.indexOf(1),b=v.indexOf(9);let s=0;for(let k=Math.min(a,b)+1;k<Math.max(a,b);k++)s+=v[k];return s},rc=[],cc=[];
  for(let r=0;r<9;r++)rc.push(sw(sol.slice(r*9,r*9+9)));
  for(let c=0;c<9;c++){const v=[];for(let r=0;r<9;r++)v.push(sol[r*9+c]);cc.push(sw(v))}
- const W={mode:'sand',sol,giv:Array(81).fill(0),rc,cc};giveUntilUnique(W,[30,18,8][df]);minimize(W,[32,24,16][df]);return W}
-function genArrow(df){const sol=base(),N=[12,15,18][df];
+ const W={mode:'sand',sol,giv:Array(81).fill(0),rc,cc};giveUntilUnique(W,[18,8,4][df]);minimize(W,[24,16,9][df]);return W}
+function genArrow(df){const sol=base(),N=[15,18,20][df];
  for(let tr=0;tr<40;tr++){
   const used=Array(81).fill(0),ar=[],dg=new Map(),ai=Array(81).fill(-1);
   const ds=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
@@ -351,7 +351,7 @@ function genArrow(df){const sol=base(),N=[12,15,18][df];
    if(p){ar.push({c,p:p.slice(1)});p.forEach(x=>used[x]=1)}else{dg.clear();snap.forEach((v,k)=>dg.set(k,v))}}
   if(ar.length<N-2)continue;
   ar.forEach((A,k)=>{ai[A.c]=k;A.p.forEach(x=>ai[x]=k)});
-  const W={mode:'arrow',sol,giv:Array(81).fill(0),ar,ai};giveUntilUnique(W,[26,16,8][df]);minimize(W,[32,24,14][df]);return W}
+  const W={mode:'arrow',sol,giv:Array(81).fill(0),ar,ai};giveUntilUnique(W,[16,8,3][df]);minimize(W,[24,14,6][df]);return W}
  return genArrow(df)}
 const GEN={killer:genKiller,arrow:genArrow,sand:genSand};
 
@@ -388,8 +388,8 @@ en:{title:'Sudoku Collection',load:'Loading…',m_killer:'Killer',m_arrow:'Arrow
  rule_sand:'The number beside a row or above a column is the sum of the digits between the 1 and the 9 in that line.',
  cont:'Continue',newg:'New Game',df0:'Easy',df1:'Medium',df2:'Hard',set:'Settings',done:'Done',lang:'Language',app:'Appearance',ap_sys:'System',ap_light:'Light',ap_dark:'Dark',theme:'Accent Color',timer:'Timer',showtimer:'Show Timer',ghost:'Last-Cell Hint',hearts:'Hearts',showhearts:'Hearts',hcount:'Lives',lv:n=>''+n,s_gen:'General',s_game:'Game',rec:'Records',dfs:d=>['E','M','H'][d],paste:'Paste your save code, then tap Import again.',stats:'Stats',won:'Puzzles Solved',save:'Save Data',exp:'Export Save Code',imp:'Import Save Code',ph:'Your save code appears here after exporting. Paste a code here to import it.',er:'Erase',un:'Undo',nt:'Notes',ht:'Hint',back:'Back',
  games:n=>''+n,gen:'Generating…',newq:'Start a new game?',newd:'Your current progress will be replaced.',cancel:'Cancel',start:'Start',win:'Solved',lose:'Game Over',ans:'Show Answer',home:'Back to Home',over:'You’ve used up all your mistakes.',time:x=>'Time '+x+'. ',errs:n=>n==1?'1 mistake.':n+' mistakes.',cp:'Save code copied. Paste it somewhere safe.',cp2:'Press and hold the text box to select all and copy.',bad:'Invalid save code. Please make sure it’s complete.'}};
-Object.assign(L.zh,{print:'打印题目',p_lv:'难度',p_per:'每页份数',p_pages:'页数',p_set:'题目',p_diff:'各不相同',p_same:'完全相同',p_ans:'附答案页',p_dl:'生成 PDF 并下载',p_gen:(i,n)=>'生成中 '+i+'/'+n+'…',p_sum:(n,p,a)=>'共 '+n+' 份，A4 '+p+' 页'+(a?'，另附答案':''),p_ok:'已生成。打开 PDF，选 A4、100% 比例打印即可。',p_err:'生成失败，请重试。'});
-Object.assign(L.en,{print:'Print Puzzles',p_lv:'Level',p_per:'Per Page',p_pages:'Pages',p_set:'Puzzles',p_diff:'All Different',p_same:'All Same',p_ans:'Answer Pages',p_dl:'Generate PDF',p_gen:(i,n)=>'Generating '+i+'/'+n+'…',p_sum:(n,p,a)=>n+' puzzle'+(n>1?'s':'')+' on '+p+' A4 page'+(p>1?'s':'')+(a?', answers included':''),p_ok:'Done. Open the PDF and print at A4, 100% scale.',p_err:'Failed. Please try again.'});
+Object.assign(L.zh,{print:'打印题目',p_lv:'难度',p_per:'每页份数',p_pages:'页数',p_ori:'页面方向',p_port:'纵向',p_land:'横向',p_save:'保存 PDF',p_ready:'已生成，点上面的“保存 PDF”即可保存。',p_ans:'附答案页',p_dl:'生成 PDF 并下载',p_gen:(i,n)=>'生成中 '+i+'/'+n+'…',p_sum:(n,p,a)=>'共 '+n+' 份，A4 '+p+' 页'+(a?'，另附答案':''),p_ok:'已生成。打开 PDF，选 A4、100% 比例打印即可。',p_err:'生成失败，请重试。'});
+Object.assign(L.en,{print:'Print Puzzles',p_lv:'Level',p_per:'Per Page',p_pages:'Pages',p_ori:'Orientation',p_port:'Portrait',p_land:'Landscape',p_save:'Save PDF',p_ready:'Ready. Tap “Save PDF” above to save it.',p_ans:'Answer Pages',p_dl:'Generate PDF',p_gen:(i,n)=>'Generating '+i+'/'+n+'…',p_sum:(n,p,a)=>n+' puzzle'+(n>1?'s':'')+' on '+p+' A4 page'+(p>1?'s':'')+(a?', answers included':''),p_ok:'Done. Open the PDF and print at A4, 100% scale.',p_err:'Failed. Please try again.'});
 let PF={st:'glass',ap:'sys',pal:0,tm:false,lang:'zh',mode:'killer',hearts:true,maxL:3,ghost:true,pv:3};
 try{Object.assign(PF,JSON.parse(localStorage.getItem(PK)||localStorage.getItem('killer-prefs-v1')))}catch(e){}
 if(PF.pv!==3){PF.pal=0;PF.pv=3}
@@ -557,7 +557,7 @@ try{let raw=localStorage.getItem(K);if(!raw)raw=localStorage.getItem(OLDK);if(ra
   else{bx.style.transform='translateY(0)';sh.style.background='';setTimeout(()=>{bx.style.cssText='animation:none';sh.style.cssText=''},560)}};
  bx.addEventListener('touchend',fin);bx.addEventListener('touchcancel',fin)})();
 /* ===== 打印：PDF 生成 ===== */
-const PW=595.28,PH=841.89,nf=v=>(+v).toFixed(2),NM={killer:'Killer Sudoku',arrow:'Arrow Sudoku',sand:'Sandwich Sudoku'},DN=['Easy','Medium','Hard'];
+let PW=595.28,PH=841.89;const setOri=l=>{PW=l?841.89:595.28;PH=l?595.28:841.89},nf=v=>(+v).toFixed(2),NM={killer:'Killer Sudoku',arrow:'Arrow Sudoku',sand:'Sandwich Sudoku'},DN=['Easy','Medium','Hard'];
 function drawP(W,X0,Y0,B,ans,lab){
  const sd=W.mode=='sand',c=B/(sd?10.4:9),g=9*c,X=X0+(B-g)/2,Y=Y0+(B-g)/2;let d='';
  const pt=(x,y)=>nf(x)+' '+nf(PH-y)+' ',
@@ -587,7 +587,7 @@ function drawP(W,X0,Y0,B,ans,lab){
   if(b!=null){tx(b,X-.35*c,Y+(j+.5)*c,fs,0,'0.25');tx(b,X+g+.35*c,Y+(j+.5)*c,fs,0,'0.25')}}}
  for(let i=0;i<81;i++){const v=ans?W.sol[i]:W.giv[i];if(v)tx(v,X+(i%9+.5)*c,Y+((i/9|0)+.5)*c,c*.62,W.giv[i],W.giv[i]?'0':'0.4')}
  tx(lab,X0+B/2,Y0-8,8,0,'0.5');return d}
-function pdfPages(ws,n,ans,m,df){const M=30,cols=n>3?2:1,rows=Math.ceil(n/cols),cw=(PW-2*M)/cols,ch=(PH-2*M)/rows,out=[];
+function pdfPages(ws,n,ans,m,df,land){setOri(land);const M=30,GR=land?{1:[1,1],2:[2,1],4:[2,2],6:[3,2],8:[4,2]}:{1:[1,1],2:[1,2],4:[2,2],6:[2,3],8:[2,4]},[cols,rows]=GR[n]||[2,Math.ceil(n/2)],cw=(PW-2*M)/cols,ch=(PH-2*M)/rows,out=[];
  for(let p=0;p<ws.length;p+=n){let d='';ws.slice(p,p+n).forEach((w,k)=>{const B=Math.min(cw-16,ch-36,470),x=M+(k%cols)*cw+(cw-B)/2,y=M+(k/cols|0)*ch+(ch-B)/2+8;
   d+=drawP(w,x,y,B,ans,(ans?'Answers - ':'')+NM[m]+' - '+DN[df]+' - No.'+(p+k+1))});out.push(d)}return out}
 function mkPDF(pages){let s='%PDF-1.4\n';const off=[],add=b=>{off.push(s.length);s+=off.length+' 0 obj\n'+b+'\nendobj\n'};
@@ -599,29 +599,48 @@ function mkPDF(pages){let s='%PDF-1.4\n';const off=[],add=b=>{off.push(s.length)
  const x=s.length;s+='xref\n0 '+(off.length+1)+'\n0000000000 65535 f \n'+off.map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<</Size '+(off.length+1)+'/Root 1 0 R>>\nstartxref\n'+x+'\n%%EOF';
  return new Blob([s],{type:'application/pdf'})}
 /* ===== 打印：界面 ===== */
-const PK2='sudoku-print-v1',PR={m:'',d:1,n:4,pg:1,same:0,ans:0};let pBusy=0;
+const PK2='sudoku-print-v1',NS=[1,2,4,6,8],PR={m:'',d:1,n:4,pg:1,o:0,ans:0};let pBusy=0,pPend=null;
 try{Object.assign(PR,JSON.parse(localStorage.getItem(PK2)||'{}'))}catch(e){}
-function printUI(){PR.n=Math.min(8,Math.max(1,PR.n|0));PR.pg=Math.min(5,Math.max(1,PR.pg|0));
- seg($('#prm'),MK.map(k=>[k,t('m_'+k)]),PR.m,k=>{PR.m=k;printUI()});
- seg($('#prd'),[0,1,2].map(d=>[''+d,t('df'+d)]),''+PR.d,k=>{PR.d=+k;printUI()});
- seg($('#prs'),[['0',t('p_diff')],['1',t('p_same')]],''+PR.same,k=>{PR.same=+k;printUI()});
+const snapN=v=>NS.reduce((b,x)=>Math.abs(x-v)<Math.abs(b-v)?x:b,NS[0]);
+const chg=()=>{pPend=null;printUI()};
+function printUI(){PR.n=snapN(PR.n|0);PR.pg=Math.min(5,Math.max(1,PR.pg|0));PR.o=PR.o?1:0;
+ seg($('#prm'),MK.map(k=>[k,t('m_'+k)]),PR.m,k=>{PR.m=k;chg()});
+ seg($('#prd'),[0,1,2].map(d=>[''+d,t('df'+d)]),''+PR.d,k=>{PR.d=+k;chg()});
+ seg($('#pro'),[['0',t('p_port')],['1',t('p_land')]],''+PR.o,k=>{PR.o=+k;chg()});
  $('#prn').textContent=PR.n;$('#prp').textContent=PR.pg;
- $('#pn1').disabled=PR.n<=1;$('#pn2').disabled=PR.n>=8;$('#pg1').disabled=PR.pg<=1;$('#pg2').disabled=PR.pg>=5;
+ $('#pn1').disabled=PR.n<=NS[0];$('#pn2').disabled=PR.n>=NS[NS.length-1];$('#pg1').disabled=PR.pg<=1;$('#pg2').disabled=PR.pg>=5;
  const a=$('#pra');a.classList.toggle('on',!!PR.ans);a.setAttribute('aria-checked',!!PR.ans);
  $('#prsum').textContent=t('p_sum',PR.n*PR.pg,PR.pg*(PR.ans?2:1),PR.ans);
- $('#prg').textContent=t('p_dl');$('#prg').disabled=!!pBusy;
+ $('#prg').textContent=t(pPend?'p_save':'p_dl');$('#prg').disabled=!!pBusy;
  try{localStorage.setItem(PK2,JSON.stringify(PR))}catch(e){}}
-$('#prt').onclick=()=>{const sh=$('#sheet');sh.classList.add('pr');if(!MK.includes(PR.m))PR.m=PF.mode;printUI();showM(sh)};
+$('#prt').onclick=()=>{const sh=$('#sheet');sh.classList.add('pr');if(!MK.includes(PR.m))PR.m=PF.mode;pPend=null;printUI();showM(sh)};
 $('#px').onclick=()=>hideM($('#sheet'));
-$('#pra').onclick=()=>{PR.ans=PR.ans?0:1;printUI()};
-[['#pn1','n',-1],['#pn2','n',1],['#pg1','pg',-1],['#pg2','pg',1]].forEach(([id,k,v])=>$(id).onclick=()=>{PR[k]+=v;printUI()});
-$('#prg').onclick=async()=>{if(pBusy)return;pBusy=1;$('#prg').disabled=true;const tot=PR.same?1:PR.n*PR.pg,ws=[];let ok=0;
+$('#pra').onclick=()=>{PR.ans=PR.ans?0:1;chg()};
+$('#pn1').onclick=()=>{PR.n=NS[Math.max(0,NS.indexOf(PR.n)-1)];chg()};
+$('#pn2').onclick=()=>{PR.n=NS[Math.min(NS.length-1,NS.indexOf(PR.n)+1)];chg()};
+$('#pg1').onclick=()=>{PR.pg--;chg()};
+$('#pg2').onclick=()=>{PR.pg++;chg()};
+/* 交付 PDF：系统分享面板 / 另存为对话框，最后才退回普通下载 */
+async function deliver(blob,name){
+ const f=new File([blob],name,{type:'application/pdf'});
+ try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return 'ok'}}
+ catch(e){if(e&&e.name==='AbortError')return 'cancel';if(e&&e.name==='NotAllowedError')return 'need'}
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+ document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),6e4);return 'ok'}
+$('#prg').onclick=async()=>{if(pBusy)return;
+ if(pPend){const r=await deliver(pPend.blob,pPend.name);if(r=='ok'){pPend=null;printUI();$('#prsum').textContent=t('p_ok')}else $('#prsum').textContent=t('p_ready');return}
+ const name='sudoku-'+PR.m+'-'+['easy','medium','hard'][PR.d]+(PR.o?'-landscape':'')+'.pdf';
+ let fh=null;
+ if(window.showSaveFilePicker){try{fh=await showSaveFilePicker({suggestedName:name,types:[{description:'PDF',accept:{'application/pdf':['.pdf']}}]})}catch(e){if(e&&e.name==='AbortError')return;fh=null}}
+ pBusy=1;$('#prg').disabled=true;const tot=PR.n*PR.pg,ws=[];let ok=0,msg=null;
  try{for(let i=0;i<tot;i++){$('#prg').textContent=t('p_gen',i+1,tot);ws.push(await genAsync(PR.m,PR.d))}
-  const all=Array.from({length:PR.n*PR.pg},(_,i)=>PR.same?ws[0]:ws[i]),pages=pdfPages(all,PR.n,false,PR.m,PR.d);
-  if(PR.ans)pdfPages(all,PR.n,true,PR.m,PR.d).forEach(p=>pages.push(p));
-  const a=document.createElement('a');a.href=URL.createObjectURL(mkPDF(pages));a.download='sudoku-'+PR.m+'-'+['easy','medium','hard'][PR.d]+'.pdf';
-  document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),6e4);ok=1}catch(e){}
- pBusy=0;printUI();$('#prsum').textContent=t(ok?'p_ok':'p_err')};
+  const pages=pdfPages(ws,PR.n,false,PR.m,PR.d,PR.o);
+  if(PR.ans)pdfPages(ws,PR.n,true,PR.m,PR.d,PR.o).forEach(p=>pages.push(p));
+  setOri(PR.o);const blob=mkPDF(pages);
+  if(fh){const w=await fh.createWritable();await w.write(blob);await w.close();ok=1}
+  else{const r=await deliver(blob,name);if(r=='need'){pPend={blob,name};msg='p_ready';ok=1}else ok=r=='ok'?1:2}}
+ catch(e){}
+ pBusy=0;printUI();$('#prsum').textContent=ok==2?'':t(msg||(ok?'p_ok':'p_err'))};
 requestAnimationFrame(()=>setTimeout(()=>{theme();applyLang();home();ldHide(720)},0));
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script></body></html>

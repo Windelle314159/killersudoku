@@ -260,6 +260,7 @@ button{transition:transform .5s var(--spring),background-color .2s,opacity .2s}
   <div class="foot" id="prsum" style="margin:-16px 0 16px;min-height:18px"></div>
   <button id="prg"></button>
   <a id="prdl" style="display:none;text-align:center;padding:14px 0 4px;color:var(--acc);font-weight:600;text-decoration:none"></a>
+  <a id="pdo" target="_blank" style="display:none;text-align:center;padding:10px 0 4px;color:var(--acc);font-weight:600;text-decoration:none"></a>
  </div>
  <div class="nav"><span></span><b data-t="set"></b><button id="sx" style="font-weight:600;color:var(--acc)" data-t="done"></button></div>
  <div class="cap" data-t="s_gen"></div>
@@ -390,8 +391,8 @@ en:{title:'Sudoku Collection',load:'Loading…',m_killer:'Killer',m_arrow:'Arrow
  rule_sand:'The number beside a row or above a column is the sum of the digits between the 1 and the 9 in that line.',
  cont:'Continue',newg:'New Game',df0:'Easy',df1:'Medium',df2:'Hard',set:'Settings',done:'Done',lang:'Language',app:'Appearance',ap_sys:'System',ap_light:'Light',ap_dark:'Dark',theme:'Accent Color',timer:'Timer',showtimer:'Show Timer',ghost:'Last-Cell Hint',hearts:'Hearts',showhearts:'Hearts',hcount:'Lives',lv:n=>''+n,s_gen:'General',s_game:'Game',rec:'Records',dfs:d=>['E','M','H'][d],paste:'Paste your save code, then tap Import again.',stats:'Stats',won:'Puzzles Solved',save:'Save Data',exp:'Export Save Code',imp:'Import Save Code',ph:'Your save code appears here after exporting. Paste a code here to import it.',er:'Erase',un:'Undo',nt:'Notes',ht:'Hint',back:'Back',
  games:n=>''+n,gen:'Generating…',newq:'Start a new game?',newd:'Your current progress will be replaced.',cancel:'Cancel',start:'Start',win:'Solved',lose:'Game Over',ans:'Show Answer',home:'Back to Home',over:'You’ve used up all your mistakes.',time:x=>'Time '+x+'. ',errs:n=>n==1?'1 mistake.':n+' mistakes.',cp:'Save code copied. Paste it somewhere safe.',cp2:'Press and hold the text box to select all and copy.',bad:'Invalid save code. Please make sure it’s complete.'}};
-Object.assign(L.zh,{print:'打印题目',p_lv:'难度',p_per:'每页份数',p_pages:'页数',p_ori:'页面方向',p_port:'纵向',p_land:'横向',p_save:'保存 PDF',p_ready:'已生成。点“保存 PDF”选择保存位置，不行就点下方“直接下载”。',p_dl2:'直接下载',p_ans:'附答案页',p_dl:'生成 PDF 并下载',p_gen:(i,n)=>'生成中 '+i+'/'+n+'…',p_sum:(n,p,a)=>'共 '+n+' 份，A4 '+p+' 页'+(a?'，另附答案':''),p_ok:'已生成。打开 PDF，选 A4、100% 比例打印即可。',p_err:'生成失败，请重试。'});
-Object.assign(L.en,{print:'Print Puzzles',p_lv:'Level',p_per:'Per Page',p_pages:'Pages',p_ori:'Orientation',p_port:'Portrait',p_land:'Landscape',p_save:'Save PDF',p_ready:'Ready. Tap “Save PDF”, or “Direct download” below if that fails.',p_dl2:'Direct download',p_ans:'Answer Pages',p_dl:'Generate PDF',p_gen:(i,n)=>'Generating '+i+'/'+n+'…',p_sum:(n,p,a)=>n+' puzzle'+(n>1?'s':'')+' on '+p+' A4 page'+(p>1?'s':'')+(a?', answers included':''),p_ok:'Done. Open the PDF and print at A4, 100% scale.',p_err:'Failed. Please try again.'});
+Object.assign(L.zh,{print:'打印题目',p_lv:'难度',p_per:'每页份数',p_pages:'页数',p_ori:'页面方向',p_port:'纵向',p_land:'横向',p_save:'保存 PDF',p_ready:'已生成。点“保存 PDF”选择保存位置，不行就点下方“直接下载”或“在新页面打开 PDF”。',p_dl2:'直接下载',p_open:'在新页面打开 PDF',p_ans:'附答案页',p_dl:'生成 PDF 并下载',p_gen:(i,n)=>'生成中 '+i+'/'+n+'…',p_sum:(n,p,a)=>'共 '+n+' 份，A4 '+p+' 页'+(a?'，另附答案':''),p_ok:'已生成。打开 PDF，选 A4、100% 比例打印即可。',p_err:'生成失败，请重试。'});
+Object.assign(L.en,{print:'Print Puzzles',p_lv:'Level',p_per:'Per Page',p_pages:'Pages',p_ori:'Orientation',p_port:'Portrait',p_land:'Landscape',p_save:'Save PDF',p_ready:'Ready. Tap “Save PDF”, or “Direct download” below if that fails.',p_dl2:'Direct download',p_open:'Open PDF in new page',p_ans:'Answer Pages',p_dl:'Generate PDF',p_gen:(i,n)=>'Generating '+i+'/'+n+'…',p_sum:(n,p,a)=>n+' puzzle'+(n>1?'s':'')+' on '+p+' A4 page'+(p>1?'s':'')+(a?', answers included':''),p_ok:'Done. Open the PDF and print at A4, 100% scale.',p_err:'Failed. Please try again.'});
 let PF={st:'glass',ap:'sys',pal:0,tm:false,lang:'zh',mode:'killer',hearts:true,maxL:3,ghost:true,pv:3};
 try{Object.assign(PF,JSON.parse(localStorage.getItem(PK)||localStorage.getItem('killer-prefs-v1')))}catch(e){}
 if(PF.pv!==3){PF.pal=0;PF.pv=3}
@@ -605,7 +606,7 @@ const PK2='sudoku-print-v1',NS=[1,2,4,6,8],PR={m:'',d:1,n:4,pg:1,o:0,ans:0};let 
 try{Object.assign(PR,JSON.parse(localStorage.getItem(PK2)||'{}'))}catch(e){}
 const snapN=v=>NS.reduce((b,x)=>Math.abs(x-v)<Math.abs(b-v)?x:b,NS[0]);
 const chg=()=>{if(pPend)URL.revokeObjectURL(pPend.url);pPend=null;printUI()};
-const isMob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isMob=/Android|iPhone|iPad|iPod|Harmony|Huawei|HMS/i.test(navigator.userAgent);
 function printUI(){PR.n=snapN(PR.n|0);PR.pg=Math.min(5,Math.max(1,PR.pg|0));PR.o=PR.o?1:0;
  seg($('#prm'),MK.map(k=>[k,t('m_'+k)]),PR.m,k=>{PR.m=k;chg()});
  seg($('#prd'),[0,1,2].map(d=>[''+d,t('df'+d)]),''+PR.d,k=>{PR.d=+k;chg()});
@@ -615,7 +616,7 @@ function printUI(){PR.n=snapN(PR.n|0);PR.pg=Math.min(5,Math.max(1,PR.pg|0));PR.o
  const a=$('#pra');a.classList.toggle('on',!!PR.ans);a.setAttribute('aria-checked',!!PR.ans);
  $('#prsum').textContent=t('p_sum',PR.n*PR.pg,PR.pg*(PR.ans?2:1),PR.ans);
  $('#prg').textContent=t(pPend?'p_save':'p_dl');$('#prg').disabled=!!pBusy;
- {const dl=$('#prdl');dl.style.display=pPend?'block':'none';if(pPend){dl.href=pPend.url;dl.download=pPend.name;dl.textContent=t('p_dl2')}}
+ {const dl=$('#prdl'),op=$('#pdo');dl.style.display=op.style.display=pPend?'block':'none';if(pPend){dl.href=pPend.durl||pPend.url;dl.download=pPend.name;dl.textContent=t('p_dl2');op.href=pPend.url;op.textContent=t('p_open')}}
  try{localStorage.setItem(PK2,JSON.stringify(PR))}catch(e){}}
 $('#prt').onclick=()=>{const sh=$('#sheet');sh.classList.add('pr');if(!MK.includes(PR.m))PR.m=PF.mode;pPend=null;printUI();showM(sh)};
 $('#px').onclick=()=>hideM($('#sheet'));
@@ -641,7 +642,7 @@ $('#prg').onclick=async()=>{if(pBusy)return;
   if(PR.ans)pdfPages(ws,PR.n,true,PR.m,PR.d,PR.o).forEach(p=>pages.push(p));
   setOri(PR.o);const blob=mkPDF(pages);
   if(fh){const w=await fh.createWritable();await w.write(blob);await w.close();ok=1}
-  else{const r=isMob?'fail':await deliver(blob,name);if(r=='fail'){pPend={blob,name,url:URL.createObjectURL(blob)};msg='p_ready';ok=1}else ok=r=='ok'?1:2}}
+  else{const r=isMob?'fail':await deliver(blob,name);if(r=='fail'){const durl=await new Promise(q=>{const fr=new FileReader();fr.onload=()=>q(fr.result);fr.onerror=()=>q('');fr.readAsDataURL(blob)});pPend={blob,name,url:URL.createObjectURL(blob),durl};msg='p_ready';ok=1}else ok=r=='ok'?1:2}}
  catch(e){}
  pBusy=0;printUI();$('#prsum').textContent=ok==2?'':t(msg||(ok?'p_ok':'p_err'))};
 requestAnimationFrame(()=>setTimeout(()=>{theme();applyLang();home();ldHide(720)},0));

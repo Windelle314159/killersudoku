@@ -322,13 +322,14 @@ function giveUntilUnique(W,p){const{sol,giv}=W,od=shuf([...Array(81).keys()]);fo
 function minimize(W,cap){const gl=shuf([...Array(81).keys()].filter(i=>W.giv[i]));let n=gl.length;
  for(const i of gl){if(n<=cap)break;const v=W.giv[i];W.giv[i]=0;BUD=6000;const c=cnt(W.giv.slice(),W,2);BUD=1e9;if(c===1)n--;else W.giv[i]=v}}
 function base(){const sol=Array(81).fill(0);fill(sol);return sol}
-function genKiller(df){const sol=base(),cg=Array(81).fill(-1),cages=[],mx=[4,4,5][df];
+function genKiller0(df){const sol=base(),cg=Array(81).fill(-1),cages=[],mx=[4,4,5][df];
  for(const s of shuf([...Array(81).keys()])){if(cg[s]>=0)continue;const k=cages.length,cl=[s],ds=new Set([sol[s]]);cg[s]=k;const t=2+(Math.random()*(mx-1)|0);
   while(cl.length<t){const nb=[];for(const j of cl){const r=j/9|0,c=j%9;[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([a,b])=>{if(a>=0&&a<9&&b>=0&&b<9){const x=a*9+b;if(cg[x]<0&&!ds.has(sol[x]))nb.push(x)}})}
    if(!nb.length)break;const x=nb[Math.random()*nb.length|0];cg[x]=k;cl.push(x);ds.add(sol[x])}
   cages.push(cl)}
  const W={mode:'killer',sol,giv:Array(81).fill(0),cg,cages,sums:cages.map(cl=>cl.reduce((a,j)=>a+sol[j],0))};
- giveUntilUnique(W,[14,6,2][df]);if(df==2)minimize(W,0);return W}
+ giveUntilUnique(W,[16,6,2][df]);minimize(W,[14,6,0][df]);return W}
+function genKiller(df){let W;for(let t=0;t<15;t++){W=genKiller0(df);if(W.giv.filter(Boolean).length<=[16,8,6][df])break}return W}
 function genSand(df){const sol=base(),sw=v=>{const a=v.indexOf(1),b=v.indexOf(9);let s=0;for(let k=Math.min(a,b)+1;k<Math.max(a,b);k++)s+=v[k];return s},rc=[],cc=[];
  for(let r=0;r<9;r++)rc.push(sw(sol.slice(r*9,r*9+9)));
  for(let c=0;c<9;c++){const v=[];for(let r=0;r<9;r++)v.push(sol[r*9+c]);cc.push(sw(v))}

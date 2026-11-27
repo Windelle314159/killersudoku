@@ -606,7 +606,7 @@ const PK2='sudoku-print-v1',NS=[1,2,4,6,8],PR={m:'',d:1,n:4,pg:1,o:0,ans:0};let 
 try{Object.assign(PR,JSON.parse(localStorage.getItem(PK2)||'{}'))}catch(e){}
 const snapN=v=>NS.reduce((b,x)=>Math.abs(x-v)<Math.abs(b-v)?x:b,NS[0]);
 const chg=()=>{if(pPend)URL.revokeObjectURL(pPend.url);pPend=null;printUI()};
-const isMob=/Android|iPhone|iPad|iPod|Harmony|Huawei|HMS/i.test(navigator.userAgent);
+const isHW=/Harmony|Huawei|HMS/i.test(navigator.userAgent),isMob=/Android|iPhone|iPad|iPod|Harmony|Huawei|HMS/i.test(navigator.userAgent);
 function printUI(){PR.n=snapN(PR.n|0);PR.pg=Math.min(5,Math.max(1,PR.pg|0));PR.o=PR.o?1:0;
  seg($('#prm'),MK.map(k=>[k,t('m_'+k)]),PR.m,k=>{PR.m=k;chg()});
  seg($('#prd'),[0,1,2].map(d=>[''+d,t('df'+d)]),''+PR.d,k=>{PR.d=+k;chg()});
@@ -616,7 +616,7 @@ function printUI(){PR.n=snapN(PR.n|0);PR.pg=Math.min(5,Math.max(1,PR.pg|0));PR.o
  const a=$('#pra');a.classList.toggle('on',!!PR.ans);a.setAttribute('aria-checked',!!PR.ans);
  $('#prsum').textContent=t('p_sum',PR.n*PR.pg,PR.pg*(PR.ans?2:1),PR.ans);
  $('#prg').textContent=t(pPend?'p_save':'p_dl');$('#prg').disabled=!!pBusy;
- {const dl=$('#prdl'),op=$('#pdo');dl.style.display=op.style.display=pPend?'block':'none';if(pPend){dl.href=pPend.durl||pPend.url;dl.download=pPend.name;dl.textContent=t('p_dl2');op.href=pPend.url;op.textContent=t('p_open')}}
+ {const dl=$('#prdl'),op=$('#pdo');dl.style.display=op.style.display=pPend?'block':'none';if(pPend){dl.href=isHW&&pPend.durl?pPend.durl:pPend.url;dl.download=pPend.name;dl.textContent=t('p_dl2');op.href=pPend.url;op.textContent=t('p_open')}}
  try{localStorage.setItem(PK2,JSON.stringify(PR))}catch(e){}}
 $('#prt').onclick=()=>{const sh=$('#sheet');sh.classList.add('pr');if(!MK.includes(PR.m))PR.m=PF.mode;pPend=null;printUI();showM(sh)};
 $('#px').onclick=()=>hideM($('#sheet'));
@@ -642,7 +642,7 @@ $('#prg').onclick=async()=>{if(pBusy)return;
   if(PR.ans)pdfPages(ws,PR.n,true,PR.m,PR.d,PR.o).forEach(p=>pages.push(p));
   setOri(PR.o);const blob=mkPDF(pages);
   if(fh){const w=await fh.createWritable();await w.write(blob);await w.close();ok=1}
-  else{const r=isMob?'fail':await deliver(blob,name);if(r=='fail'){const durl=await new Promise(q=>{const fr=new FileReader();fr.onload=()=>q(fr.result);fr.onerror=()=>q('');fr.readAsDataURL(blob)});pPend={blob,name,url:URL.createObjectURL(blob),durl};msg='p_ready';ok=1}else ok=r=='ok'?1:2}}
+  else{const r=isMob?'fail':await deliver(blob,name);if(r=='fail'){const durl=!isHW?'':await new Promise(q=>{const fr=new FileReader();fr.onload=()=>q(fr.result);fr.onerror=()=>q('');fr.readAsDataURL(blob)});pPend={blob,name,url:URL.createObjectURL(blob),durl};msg='p_ready';ok=1}else ok=r=='ok'?1:2}}
  catch(e){}
  pBusy=0;printUI();$('#prsum').textContent=ok==2?'':t(msg||(ok?'p_ok':'p_err'))};
 requestAnimationFrame(()=>setTimeout(()=>{theme();applyLang();home();ldHide(720)},0));
